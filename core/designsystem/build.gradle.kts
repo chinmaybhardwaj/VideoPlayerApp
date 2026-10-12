@@ -28,6 +28,9 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
         }
+        androidMain.dependencies {
+            api(libs.androidx.compose.material.icons.core)
+        }
     }
 }
 

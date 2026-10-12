@@ -11,9 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -48,7 +47,7 @@ fun StatsForNerdsOverlay(
             .padding(16.dp)
     ) {
         Column(
-            modifier = Modifier.width(320.dp),
+            modifier = Modifier.widthIn(min = 280.dp, max = 340.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // Header
@@ -76,7 +75,7 @@ fun StatsForNerdsOverlay(
                     modifier = Modifier.padding(0.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = PlayerIcons.Close,
                         contentDescription = "Close Stats",
                         tint = Color.LightGray
                     )

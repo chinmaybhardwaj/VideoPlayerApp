@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -158,7 +160,8 @@ fun PlayerControlsOverlay(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.TopCenter)
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                        .statusBarsPadding()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -166,32 +169,47 @@ fun PlayerControlsOverlay(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.weight(1f)
                     ) {
-                        IconButton(onClick = onBackClick) {
+                        IconButton(
+                            onClick = onBackClick,
+                            modifier = Modifier.size(40.dp)
+                        ) {
                             Icon(PlayerIcons.Back, contentDescription = "Back", tint = Color.White)
                         }
                         Spacer(modifier = Modifier.width(8.dp))
-                        Column {
+                        Column(
+                            modifier = Modifier.weight(1f, fill = false),
+                            verticalArrangement = Arrangement.Center
+                        ) {
                             Text(
                                 text = playerState.currentVideo?.title ?: "Video Player",
                                 color = Color.White,
-                                fontSize = 16.sp,
+                                fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
                             playerState.currentVideo?.codecInfo?.let { codec ->
+                                Spacer(modifier = Modifier.height(2.dp))
                                 Text(
                                     text = codec,
                                     color = Color(0xFF94A3B8),
-                                    fontSize = 12.sp
+                                    fontSize = 11.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
                         }
                     }
 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
                         // Lock screen button
-                        IconButton(onClick = { isLocked = !isLocked }) {
+                        IconButton(
+                            onClick = { isLocked = !isLocked },
+                            modifier = Modifier.size(40.dp)
+                        ) {
                             Icon(
                                 imageVector = PlayerIcons.Lock,
                                 contentDescription = "Lock",
@@ -201,7 +219,10 @@ fun PlayerControlsOverlay(
 
                         if (!isLocked) {
                             // "Stats for Nerds" Toggle
-                            IconButton(onClick = { onEvent(PlayerEvent.ToggleStatsOverlay) }) {
+                            IconButton(
+                                onClick = { onEvent(PlayerEvent.ToggleStatsOverlay) },
+                                modifier = Modifier.size(40.dp)
+                            ) {
                                 Icon(
                                     imageVector = PlayerIcons.Info,
                                     contentDescription = "Stats for Nerds",
@@ -210,7 +231,10 @@ fun PlayerControlsOverlay(
                             }
 
                             // PiP trigger
-                            IconButton(onClick = onPictureInPictureClick) {
+                            IconButton(
+                                onClick = onPictureInPictureClick,
+                                modifier = Modifier.size(40.dp)
+                            ) {
                                 Icon(
                                     imageVector = PlayerIcons.PiP,
                                     contentDescription = "Picture in Picture",
@@ -219,7 +243,10 @@ fun PlayerControlsOverlay(
                             }
 
                             // Settings Bottom Sheet
-                            IconButton(onClick = { isSettingsOpen = true }) {
+                            IconButton(
+                                onClick = { isSettingsOpen = true },
+                                modifier = Modifier.size(40.dp)
+                            ) {
                                 Icon(
                                     imageVector = PlayerIcons.Settings,
                                     contentDescription = "Settings",
@@ -296,7 +323,8 @@ fun PlayerControlsOverlay(
                         modifier = Modifier
                             .fillMaxWidth()
                             .align(Alignment.BottomCenter)
-                            .padding(horizontal = 16.dp, vertical = 16.dp)
+                            .navigationBarsPadding()
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
                     ) {
                         // Scrubber Slider
                         val displayPos = if (isScrubbing) scrubPositionMs else playerState.currentPositionMs
@@ -415,7 +443,7 @@ fun PlayerControlsOverlay(
             StatsForNerdsOverlay(
                 playerState = playerState,
                 onClose = { onEvent(PlayerEvent.ToggleStatsOverlay) },
-                modifier = Modifier.align(Alignment.TopEnd)
+                modifier = Modifier.align(Alignment.Center)
             )
         }
 
