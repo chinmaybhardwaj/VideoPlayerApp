@@ -1,4 +1,4 @@
-package com.cbhard.videoplayer.core.designsystem
+package com.cbhard.videoplayer.composeapp.ui.controls
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -45,6 +45,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cbhard.videoplayer.core.designsystem.PlayerIcons
+import com.cbhard.videoplayer.core.designsystem.formatDuration
 import com.cbhard.videoplayer.core.model.ResizeMode
 import com.cbhard.videoplayer.core.player.PlayerEvent
 import com.cbhard.videoplayer.core.player.PlayerState
@@ -384,7 +386,7 @@ fun PlayerControlsOverlay(
                                     modifier = Modifier
                                         .background(Color(0x333B82F6), RoundedCornerShape(4.dp))
                                         .padding(horizontal = 6.dp, vertical = 2.dp)
-                                ) {
+                                 ) {
                                     Text(
                                         text = playerState.selectedQuality.name,
                                         fontSize = 11.sp,

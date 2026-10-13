@@ -1,4 +1,4 @@
-package com.cbhard.videoplayer.core.designsystem
+package com.cbhard.videoplayer.composeapp.ui.controls
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cbhard.videoplayer.core.designsystem.PlayerIcons
 import com.cbhard.videoplayer.core.model.BufferProfile
 import com.cbhard.videoplayer.core.player.PlayerEvent
 import com.cbhard.videoplayer.core.player.PlayerState

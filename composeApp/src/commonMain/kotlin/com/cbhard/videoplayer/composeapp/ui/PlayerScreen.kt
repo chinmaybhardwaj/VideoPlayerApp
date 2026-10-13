@@ -4,21 +4,23 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.cbhard.videoplayer.core.designsystem.PlayerControlsOverlay
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.cbhard.videoplayer.composeapp.ui.controls.PlayerControlsOverlay
 import com.cbhard.videoplayer.core.player.PlayerController
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun PlayerScreen(
     playerController: PlayerController,
     onBackClick: () -> Unit,
     onPictureInPictureClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: PlayerViewModel = koinViewModel()
 ) {
-    val playerState by playerController.playerState.collectAsState()
+    val playerState by viewModel.playerState.collectAsStateWithLifecycle()
 
     Box(
         modifier = modifier
@@ -34,7 +36,7 @@ fun PlayerScreen(
         // Compose Multiplatform OTT Controls, Gestures & Telemetry Overlay
         PlayerControlsOverlay(
             playerState = playerState,
-            onEvent = { event -> playerController.onEvent(event) },
+            onEvent = { event -> viewModel.onEvent(event) },
             onBackClick = onBackClick,
             onPictureInPictureClick = onPictureInPictureClick,
             modifier = Modifier.fillMaxSize()

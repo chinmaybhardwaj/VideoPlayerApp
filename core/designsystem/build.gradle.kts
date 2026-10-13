@@ -20,8 +20,6 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            api(project(":core:model"))
-            api(project(":core:player"))
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)

@@ -46,8 +46,21 @@ class AndroidPlayerController(
     private val context: Context
 ) : PlayerController {
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var tickerJob: Job? = null
+
+    private fun ensureActiveScope(): CoroutineScope {
+        if (!scope.isActive) {
+            scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        }
+        return scope
+    }
+
+    private fun ensurePlayerInitialized() {
+        if (exoPlayer == null) {
+            initPlayer(_playerState.value.bufferProfile)
+        }
+    }
 
     private val bandwidthMeter = DefaultBandwidthMeter.Builder(context).build()
     private val trackSelector = DefaultTrackSelector(context)
@@ -275,9 +288,11 @@ class AndroidPlayerController(
 
     private fun startPositionTicker() {
         tickerJob?.cancel()
-        tickerJob = scope.launch {
+        val activeScope = ensureActiveScope()
+        tickerJob = activeScope.launch {
             while (isActive) {
-                exoPlayer?.let { player ->
+                val player = exoPlayer
+                if (player != null && player.isPlaying) {
                     val pos = player.currentPosition.coerceAtLeast(0L)
                     val dur = player.duration.coerceAtLeast(0L)
                     val buffered = player.bufferedPosition.coerceAtLeast(0L)
@@ -321,9 +336,13 @@ class AndroidPlayerController(
     override fun onEvent(event: PlayerEvent) {
         when (event) {
             is PlayerEvent.LoadVideo -> loadVideo(event.video)
-            PlayerEvent.Play -> exoPlayer?.play()
+            PlayerEvent.Play -> {
+                ensurePlayerInitialized()
+                exoPlayer?.play()
+            }
             PlayerEvent.Pause -> exoPlayer?.pause()
             PlayerEvent.TogglePlayPause -> {
+                ensurePlayerInitialized()
                 val player = exoPlayer ?: return
                 if (player.isPlaying) player.pause() else player.play()
             }
@@ -376,6 +395,7 @@ class AndroidPlayerController(
     }
 
     private fun loadVideo(video: Video) {
+        ensurePlayerInitialized()
         totalDroppedFrames = 0
         detectedVideoCodec = "Detecting..."
         detectedAudioCodec = "Detecting..."
@@ -508,8 +528,9 @@ class AndroidPlayerController(
 
     override fun release() {
         tickerJob?.cancel()
-        scope.cancel()
+        tickerJob = null
         exoPlayer?.release()
         exoPlayer = null
+        _playerState.update { it.copy(isPlaying = false) }
     }
 }
