@@ -4,9 +4,12 @@ import com.cbhard.videoplayer.core.model.DrmConfig
 import com.cbhard.videoplayer.core.model.DrmScheme
 import com.cbhard.videoplayer.core.model.Video
 import com.cbhard.videoplayer.core.model.VideoCategory
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 interface VideoRepository {
     fun getVideos(): List<Video>
+    fun getVideosStream(): Flow<List<Video>>
     fun getVideosByCategory(category: VideoCategory): List<Video>
     fun getVideoById(id: String): Video?
 }
@@ -100,6 +103,7 @@ class VideoRepositoryImpl : VideoRepository {
     )
 
     override fun getVideos(): List<Video> = videos
+    override fun getVideosStream(): Flow<List<Video>> = flowOf(videos)
 
     override fun getVideosByCategory(category: VideoCategory): List<Video> =
         videos.filter { it.category == category }

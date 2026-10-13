@@ -48,22 +48,45 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cbhard.videoplayer.core.designsystem.PlayerIcons
 import com.cbhard.videoplayer.core.model.Video
 import com.cbhard.videoplayer.core.model.VideoCategory
+import org.koin.compose.viewmodel.koinViewModel
+
+@Composable
+fun CatalogScreen(
+    onVideoSelected: (Video) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: CatalogViewModel = koinViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    CatalogScreen(
+        videos = uiState.videos,
+        selectedCategory = uiState.selectedCategory,
+        onCategorySelect = { viewModel.onCategorySelect(it) },
+        onCustomVideoAdd = { viewModel.addCustomVideo(it) },
+        onVideoSelected = onVideoSelected,
+        modifier = modifier
+    )
+}
 
 @Composable
 fun CatalogScreen(
     videos: List<Video>,
     onVideoSelected: (Video) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectedCategory: VideoCategory? = null,
+    onCategorySelect: ((VideoCategory?) -> Unit)? = null,
+    onCustomVideoAdd: ((Video) -> Unit)? = null
 ) {
-    var selectedCategory by remember { mutableStateOf<VideoCategory?>(null) }
+    var internalSelectedCategory by remember { mutableStateOf<VideoCategory?>(null) }
+    val effectiveCategory = if (onCategorySelect != null) selectedCategory else internalSelectedCategory
     var showCustomUrlDialog by remember { mutableStateOf(false) }
     var showDrmGuideDialog by remember { mutableStateOf(false) }
 
-    val filteredVideos = remember(selectedCategory, videos) {
-        if (selectedCategory == null) videos else videos.filter { it.category == selectedCategory }
+    val filteredVideos = remember(effectiveCategory, videos) {
+        if (effectiveCategory == null) videos else videos.filter { it.category == effectiveCategory }
     }
 
     Scaffold(
@@ -131,14 +154,18 @@ fun CatalogScreen(
                 ) {
                     CategoryChip(
                         label = "All Streams",
-                        isSelected = selectedCategory == null,
-                        onClick = { selectedCategory = null }
+                        isSelected = effectiveCategory == null,
+                        onClick = {
+                            if (onCategorySelect != null) onCategorySelect(null) else internalSelectedCategory = null
+                        }
                     )
                     VideoCategory.entries.forEach { category ->
                         CategoryChip(
                             label = category.displayName.substringBefore(" (").substringBefore(" Showcase"),
-                            isSelected = selectedCategory == category,
-                            onClick = { selectedCategory = category }
+                            isSelected = effectiveCategory == category,
+                            onClick = {
+                                if (onCategorySelect != null) onCategorySelect(category) else internalSelectedCategory = category
+                            }
                         )
                     }
                 }
@@ -170,6 +197,7 @@ fun CatalogScreen(
             onDismiss = { showCustomUrlDialog = false },
             onPlay = { customVideo ->
                 showCustomUrlDialog = false
+                onCustomVideoAdd?.invoke(customVideo)
                 onVideoSelected(customVideo)
             }
         )

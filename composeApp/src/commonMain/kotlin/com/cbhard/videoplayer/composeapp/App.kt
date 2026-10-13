@@ -8,13 +8,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.cbhard.videoplayer.composeapp.data.VideoRepository
 import com.cbhard.videoplayer.composeapp.ui.CatalogScreen
+import com.cbhard.videoplayer.composeapp.ui.CatalogViewModel
 import com.cbhard.videoplayer.composeapp.ui.PlayerScreen
+import com.cbhard.videoplayer.composeapp.ui.PlayerViewModel
 import com.cbhard.videoplayer.core.designsystem.VideoPlayerTheme
 import com.cbhard.videoplayer.core.player.PlayerController
 import com.cbhard.videoplayer.core.player.PlayerEvent
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 enum class AppDestination {
     CATALOG,
@@ -24,11 +25,13 @@ enum class AppDestination {
 @Composable
 fun App(
     onPictureInPictureClick: () -> Unit = {},
-    playerController: PlayerController = koinInject(),
-    videoRepository: VideoRepository = koinInject(),
-    modifier: Modifier = Modifier
+    playerController: PlayerController? = null,
+    modifier: Modifier = Modifier,
+    catalogViewModel: CatalogViewModel = koinViewModel(),
+    playerViewModel: PlayerViewModel = koinViewModel()
 ) {
     var currentScreen by remember { mutableStateOf(AppDestination.CATALOG) }
+    val effectiveController = playerController ?: playerViewModel.playerController
 
     VideoPlayerTheme {
         Crossfade(
@@ -38,9 +41,9 @@ fun App(
             when (destination) {
                 AppDestination.CATALOG -> {
                     CatalogScreen(
-                        videos = videoRepository.getVideos(),
+                        viewModel = catalogViewModel,
                         onVideoSelected = { video ->
-                            playerController.onEvent(PlayerEvent.LoadVideo(video))
+                            effectiveController.onEvent(PlayerEvent.LoadVideo(video))
                             currentScreen = AppDestination.PLAYER
                         }
                     )
@@ -48,9 +51,10 @@ fun App(
 
                 AppDestination.PLAYER -> {
                     PlayerScreen(
-                        playerController = playerController,
+                        playerController = effectiveController,
+                        viewModel = playerViewModel,
                         onBackClick = {
-                            playerController.onEvent(PlayerEvent.Pause)
+                            effectiveController.onEvent(PlayerEvent.Pause)
                             currentScreen = AppDestination.CATALOG
                         },
                         onPictureInPictureClick = onPictureInPictureClick

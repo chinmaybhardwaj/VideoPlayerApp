@@ -4,8 +4,10 @@ import android.view.ViewGroup
 import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
@@ -21,6 +23,7 @@ actual fun PlatformPlayerSurface(
 ) {
     val androidController = playerController as? AndroidPlayerController
     val exoPlayer = androidController?.getExoPlayer()
+    val playerState by playerController.playerState.collectAsStateWithLifecycle()
 
     AndroidView(
         factory = { context ->
@@ -35,12 +38,11 @@ actual fun PlatformPlayerSurface(
         },
         update = { view ->
             view.player = exoPlayer
-            view.resizeMode = when (androidController?.playerState?.value?.resizeMode) {
+            view.resizeMode = when (playerState.resizeMode) {
                 ResizeMode.FIT -> AspectRatioFrameLayout.RESIZE_MODE_FIT
                 ResizeMode.FILL -> AspectRatioFrameLayout.RESIZE_MODE_ZOOM
                 ResizeMode.FIXED_16_9 -> AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH
                 ResizeMode.STRETCH -> AspectRatioFrameLayout.RESIZE_MODE_FILL
-                null -> AspectRatioFrameLayout.RESIZE_MODE_FIT
             }
         },
         modifier = modifier.fillMaxSize()
