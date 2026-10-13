@@ -16,7 +16,7 @@ fun initKoin() {
     }
 }
 
-fun MainViewController() = ComposeUIViewController {
+fun MainViewController() = ComposeUIViewController(configure = { enforceStrictPlistSanityCheck = false }) {
     initKoin()
     App()
 }
