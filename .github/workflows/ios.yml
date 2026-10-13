@@ -1,0 +1,38 @@
+name: iOS CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: Build iOS App
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build KMP iOS Debug Framework
+        run: ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64
+
+      - name: Build iOS App with Xcode
+        run: |
+          SIM_ID=$(xcrun simctl list devices available | grep -m 1 -E 'iPhone' | awk -F '[()]' '{print $2}')
+          echo "Selected Simulator ID: $SIM_ID"
+          xcodebuild -project iosApp/iosApp.xcodeproj \
+            -scheme iosApp \
+            -configuration Debug \
+            -destination "id=$SIM_ID" \
+            CODE_SIGNING_ALLOWED=NO \
+            build
